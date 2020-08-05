@@ -1,0 +1,62 @@
+{% extends 'contact/base.html' %}
+{% block main %}
+<div class="container">
+    <h1 class="text-center alert alert-success">CRUD Operations</h1>
+    <div class="row">
+        <div class="col-md-4 mt-5 border rounded p-2">
+            <h3 class="alert alert-warning">Contact Form</h3>
+            <form action="" method="POST" class="p-4">
+                {% csrf_token %}
+                {{form.as_p}}
+                <input type="submit" value="Save Contact"
+                    class="btn btn-md btn-outline-success text-center mb-3 btn-block">
+            </form>
+        </div>
+
+        <div class="col-md-7 mt-5 border rounded p-2 offset-1">
+
+            <h3 class="alert alert-warning">Contact List</h3>
+            
+            <form action="{% url 'search' %}" method="GET" class="form-inline p-2">
+                <input name="sea" class="form-control" style="width: 500px;" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success ml-3" type="submit">Search</button>
+            </form>
+
+            {% if contact %}
+                <table class="table text-center">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">id</th>
+                            <th scope="col">name</th>
+                            <th scope="col">phone</th>
+                            <th scope="col">email</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for contact in contact %}
+                        <tr>
+                            <th scope="row">{{contact.id}}</th>
+                            <td>{{contact.name}}</td>
+                            <td>{{contact.phone}}</td>
+                            <td>{{contact.email}}</td>
+                            <td>
+                                <form action="{% url 'delete' contact.id %}" class="d-inline" method="POST">
+                                {% csrf_token %}
+                                    <input type="submit" value="Del" class="btn btn-danger">
+                                </form>
+
+                                <a href="{% url 'update' contact.id %}" class="btn btn-warning">Update</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <h3 class="alert alert-danger">No Contact</h3>
+                    {% endif %}
+
+                    </tbody>
+                </table>
+        </div>
+    </div>
+</div>
+{% endblock main %}
