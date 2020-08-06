@@ -2,6 +2,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from .forms import ContactForm
 from .models import Conatct
+from django.contrib import messages
 # Create your views here.
 
 
@@ -21,7 +22,9 @@ def index(request):
 
 
 def delete(request, id):
-    Conatct.objects.get(pk=id).delete()
+    contactn = Conatct.objects.get(pk=id)
+    messages.error(request, f'Deleted : {contactn.name}')
+    contactn.delete()
     return HttpResponseRedirect('/')
 
 
@@ -31,6 +34,7 @@ def update(request, id):
         form = ContactForm(request.POST, instance=con)
         form.save()
         form = ContactForm()
+        messages.info(request, f'Updated : {con.name}')
         return HttpResponseRedirect('/')
     else:
         form = ContactForm(instance=con)

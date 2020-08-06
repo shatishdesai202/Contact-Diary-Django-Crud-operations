@@ -16,6 +16,12 @@
         <div class="col-md-7 mt-5 border rounded p-2 offset-1">
 
             <h3 class="alert alert-warning">Contact List</h3>
+
+            {% if messages %}
+                {% for messages in messages  %}
+                    <di class="alert alert-{{messages.tags}} display-block">{{messages}}</di   v>  
+                {% endfor %}
+            {% endif %}
             
             <form action="{% url 'search' %}" method="GET" class="form-inline p-2">
                 <input name="sea" class="form-control" style="width: 500px;" type="search" placeholder="Search" aria-label="Search">
