@@ -3,22 +3,91 @@ from django.shortcuts import render
 from .forms import ContactForm
 from .models import Conatct
 from django.contrib import messages
-# Create your views here.
+
+# Authentication
+
+# from django.contrib.auth.models import User
+from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
+from django.contrib.auth.forms import AuthenticationForm, User
+
+# form import
+from .forms import SignupForm, LoginForm
 
 
-def index(request):
+def log_out(request):
+    if request.user.is_authenticated:
+        logout(request)
+        messages.info(request, 'Successfully Logout')
+        return HttpResponseRedirect('/login/')
+    else:
+        return HttpResponseRedirect('/login/')
 
+
+def login_(request):
     if request.method == "POST":
-        form = ContactForm(request.POST)
+        form = LoginForm(request=request, data=request.POST)
+        if form.is_valid():
+            uname = form.cleaned_data['username']
+            upassword = form.cleaned_data['password']
+            user = authenticate(username=uname, password=upassword)
+            if user is not None:
+                login(request, user)
+                return HttpResponseRedirect('/')
+    else:
+        form = LoginForm()
+    context = {'form': form}
+    return render(request, 'contact/login.html', context)
+
+
+def sign_up(request):
+    if request.method == "POST":
+        form = SignupForm(request.POST)
         if form.is_valid():
             form.save()
-        return HttpResponseRedirect('/')
+            form = SignupForm()
+            return HttpResponseRedirect('/')
     else:
-        form = ContactForm()
+        form = SignupForm()
+    context = {'form': form}
+    return render(request, 'contact/signup.html', context)
 
-    contact = Conatct.objects.all()
-    context = {'form': form, 'contact': contact}
-    return render(request, 'contact/home.html', context)
+
+def index(request, id=None):
+    if id == None:
+        if request.user.is_authenticated:
+            contact = Conatct.objects.filter(contact_of=request.user)
+            if request.method == "POST":
+
+                form = ContactForm(request.POST, request.FILES)
+                if form.is_valid():
+                    inst = form.save(commit=False)
+                    inst.contact_of = request.user
+                    inst.save()
+                    return HttpResponseRedirect('/')
+            else:
+
+                form = ContactForm()
+
+        else:
+            contact = None
+            return HttpResponseRedirect('/login/')
+        context = {'form': form, 'contact': contact}
+        return render(request, 'contact/home.html', context)
+    else:
+        con = Conatct.objects.get(pk=id)
+        if request.method == "POST":
+            form = ContactForm(request.POST, instance=con)
+            if form.is_valid():
+                form.save()
+                messages.info(request, f'Updated : {con.name}')
+                return HttpResponseRedirect('/')
+        else:
+            
+            form = ContactForm(instance=con)
+
+        contact = Conatct.objects.filter(contact_of=request.user)
+        context = {'form': form, 'contact': contact}
+        return render(request, 'contact/home.html', context)
 
 
 def delete(request, id):
@@ -28,32 +97,38 @@ def delete(request, id):
     return HttpResponseRedirect('/')
 
 
-def update(request, id):
-    con = Conatct.objects.get(pk=id)
-    if request.method == "POST":
-        form = ContactForm(request.POST, instance=con)
-        form.save()
-        form = ContactForm()
-        messages.info(request, f'Updated : {con.name}')
-        return HttpResponseRedirect('/')
-    else:
-        form = ContactForm(instance=con)
-
-    contact = Conatct.objects.all()
-    context = {'form': form, 'contact': contact}
-    return render(request, 'contact/home.html', context)
-
-
 def search(request):
     form = ContactForm()
     if request.method == "GET":
         val = request.GET['sea']
-        names = Conatct.objects.filter(name__contains=val)
-        phones = Conatct.objects.filter(phone__contains=val)
-        emails = Conatct.objects.filter(email__contains=val)
-        print(names)
-        print(phones)
-        print(emails)
+        names = Conatct.objects.filter(
+            name__contains=val, contact_of=request.user)
+        phones = Conatct.objects.filter(
+            phone__contains=val, contact_of=request.user)
+        emails = Conatct.objects.filter(
+            email__contains=val, contact_of=request.user)
+        
         contact = names.union(phones, emails)
-    context = {'form': form, 'contact': contact}
+        context = {'contact': contact, 'form': form}
+
+    else:
+        if request.user.is_authenticated:
+            contact = Conatct.objects.filter(contact_of=request.user)
+            if request.method == "POST":
+
+                form = ContactForm(request.POST, request.FILES)
+                if form.is_valid():
+                    inst = form.save(commit=False)
+                    inst.contact_of = request.user
+                    inst.save()
+                    return HttpResponseRedirect('/')
+            else:
+
+                form = ContactForm()
+
+        else:
+            contact = None
+            return HttpResponseRedirect('/login/')
+        context = {'form': form, 'contact': contact}
+        return render(request, 'contact/home.html', context)
     return render(request, 'contact/home.html', context)

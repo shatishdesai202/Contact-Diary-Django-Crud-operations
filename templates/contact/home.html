@@ -1,13 +1,19 @@
 {% extends 'contact/base.html' %}
 {% block main %}
 <div class="container">
-    <h1 class="text-center alert alert-success">CRUD Operations</h1>
+    <div class="alert alert-primary mt-3 alert-dismissible fade show" role="alert">
+        <strong>{% if request.user.is_authenticated %}{{request.user}}{% else %}Guast User{% endif %}</strong> Welcome to contact-diary.com
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>  
     <div class="row">
         <div class="col-md-4 mt-5 border rounded p-2">
             <h3 class="alert alert-warning">Contact Form</h3>
-            <form action="" method="POST" class="p-4">
+            <form action="  " method="POST" class="p-4" novalidate>
                 {% csrf_token %}
                 {{form.as_p}}
+
                 <input type="submit" value="Save Contact"
                     class="btn btn-md btn-outline-success text-center mb-3 btn-block">
             </form>
@@ -16,14 +22,16 @@
         <div class="col-md-7 mt-5 border rounded p-2 offset-1">
 
             <h3 class="alert alert-warning">Contact List</h3>
-
-            {% if messages %}
-                {% for messages in messages  %}
-                    <di class="alert alert-{{messages.tags}} display-block">{{messages}}</di   v>  
-                {% endfor %}
-            {% endif %}
+            <div class="m-3">
+                {% if messages %}
+                    {% for messages in messages  %}
+                        <div class="alert alert-{{messages.tags}} display-block">{{messages}}</div>  
+                    {% endfor %}
+                {% endif %}
+            </div>
             
             <form action="{% url 'search' %}" method="GET" class="form-inline p-2">
+
                 <input name="sea" class="form-control" style="width: 500px;" type="search" placeholder="Search" aria-label="Search">
                 <button class="btn btn-outline-success ml-3" type="submit">Search</button>
             </form>
@@ -42,7 +50,7 @@
                     <tbody>
                         {% for contact in contact %}
                         <tr>
-                            <th scope="row">{{contact.id}}</th>
+                            <th scope="row">{{forloop.counter}}</th>
                             <td>{{contact.name}}</td>
                             <td>{{contact.phone}}</td>
                             <td>{{contact.email}}</td>
@@ -52,7 +60,12 @@
                                     <input type="submit" value="Del" class="btn btn-danger">
                                 </form>
 
-                                <a href="{% url 'update' contact.id %}" class="btn btn-warning">Update</a>
+                                <form action="{% url 'update' contact.id %}" class="d-inline" method="GET">
+                                {% csrf_token %}
+                                    <input type="submit" value="Update" class="btn btn-warning">
+                                </form>
+
+                                {% comment %} <a href="{% url 'update' contact.id %}" class="btn btn-warning">Update</a> {% endcomment %}
                             </td>
                         </tr>
                         {% endfor %}

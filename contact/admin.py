@@ -5,4 +5,4 @@ from .models import Conatct
 @admin.register(Conatct)
 class AdminContact(admin.ModelAdmin):
     
-    list_display = ['id', 'name', 'phone', 'email']
+    list_display = ['id', 'name', 'phone', 'email', 'contact_of']
