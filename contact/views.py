@@ -19,7 +19,7 @@ def log_out(request):
         logout(request)
         messages.info(request, 'Successfully Logout')
         return HttpResponseRedirect('/login/')
-    else:
+    else: 
         return HttpResponseRedirect('/login/')
 
 
@@ -53,6 +53,7 @@ def sign_up(request):
 
 
 def index(request, id=None):
+    # ip = request.session['ip']
     if id == None:
         if request.user.is_authenticated:
             contact = Conatct.objects.filter(contact_of=request.user)
@@ -86,7 +87,7 @@ def index(request, id=None):
             form = ContactForm(instance=con)
 
         contact = Conatct.objects.filter(contact_of=request.user)
-        context = {'form': form, 'contact': contact}
+        context = {'form': form, 'contact': contact, 'ip':ip}
         return render(request, 'contact/home.html', context)
 
 

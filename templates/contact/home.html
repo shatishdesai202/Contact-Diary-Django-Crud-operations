@@ -2,7 +2,7 @@
 {% block main %}
 <div class="container">
     <div class="alert alert-primary mt-3 alert-dismissible fade show" role="alert">
-        <strong>{% if request.user.is_authenticated %}{{request.user}}{% else %}Guast User{% endif %}</strong> Welcome to contact-diary.com
+        <strong>{% if request.user.is_authenticated %}{{request.user}} ({{ip}}){% else %}Guast User{% endif %}</strong> Welcome to contact-diary.com
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
